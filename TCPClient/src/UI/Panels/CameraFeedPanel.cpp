@@ -65,12 +65,14 @@ void CameraFeedPanel::onUpdate()
     const bool wantStream = connected && userEnabled && visible;
 
     // --- Start/Stop gating ---
-    if (wantStream && !streaming) {
-        if (urlDirty) {
-            std::string url = buildRtspUrl();
+    if (wantStream && (!streaming || urlDirty)) {
+        std::string url = buildRtspUrl();
+        if (!url.empty() && canToggle()) {
             std::cout << "Setting stream URL to: " << url << std::endl;
             videoStream.restart(url);
+            streaming = true;
             urlDirty = false;
+            lastToggle = std::chrono::steady_clock::now();
         }
     } else if (!wantStream && streaming) {
         stopStream();
@@ -171,8 +173,13 @@ std::string CameraFeedPanel::buildRtspUrl() const {
 
     switch (currHost) {
         case ConnectionType::Local:
-            host = LOCAL_PI_IP;
-            port = LOCAL_VIDEO_PORT;
+            if (forceRemoteOnLocal) {
+                host = VM_PUBLIC_IP;
+                port = REMOTE_VIDEO_PORT;
+            } else {
+                host = LOCAL_PI_IP;
+                port = LOCAL_VIDEO_PORT;
+            }
             break;
 
         case ConnectionType::Remote:

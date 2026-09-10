@@ -32,6 +32,7 @@ list(APPEND TCPCLIENT_SRC
 )
 
 add_executable(TCPClient ${TCPCLIENT_SRC})
+target_compile_features(TCPClient PRIVATE cxx_std_17)
 target_include_directories(TCPClient PRIVATE
   "${APP_DIR}"
   "${SRC_DIR}"
@@ -57,6 +58,7 @@ target_link_libraries(TCPClient PRIVATE OpenGL::GL)
 # ---- GLFW: local if present, else fetch ----
 set(GLFW_LOCAL_INCLUDE "${APP_DIR}/Dependencies/glfw/include")
 set(GLFW_LOCAL_LIB     "${APP_DIR}/Dependencies/glfw/lib-mingw/libglfw3.a")
+set(GLFW_LOCAL_SOURCE  "${APP_DIR}/Dependencies/glfw")
 if(NOT DEPS_FORCE_FETCH AND EXISTS "${GLFW_LOCAL_INCLUDE}" AND EXISTS "${GLFW_LOCAL_LIB}")
   add_library(glfw_local STATIC IMPORTED GLOBAL)
   set_target_properties(glfw_local PROPERTIES
@@ -69,11 +71,15 @@ else()
   set(GLFW_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
   set(GLFW_BUILD_DOCS     OFF CACHE BOOL "" FORCE)
   set(GLFW_LIBRARY_TYPE STATIC CACHE STRING "" FORCE)
-  FetchContent_Declare(glfw_src
-    GIT_REPOSITORY https://github.com/glfw/glfw.git
-    GIT_TAG 3.4
-  )
-  FetchContent_MakeAvailable(glfw_src) # provides 'glfw'
+  if(NOT DEPS_FORCE_FETCH AND EXISTS "${GLFW_LOCAL_SOURCE}/CMakeLists.txt")
+    add_subdirectory("${GLFW_LOCAL_SOURCE}" "${CMAKE_CURRENT_BINARY_DIR}/glfw-build")
+  else()
+    FetchContent_Declare(glfw_src
+      GIT_REPOSITORY https://github.com/glfw/glfw.git
+      GIT_TAG 3.4
+    )
+    FetchContent_MakeAvailable(glfw_src) # provides 'glfw'
+  endif()
 endif()
 
 # ---- Link third-party + shared + system libs ----

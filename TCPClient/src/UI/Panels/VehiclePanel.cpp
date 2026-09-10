@@ -1,5 +1,6 @@
 #include "VehiclePanel.h"
 
+#include <algorithm>
 #include <stdio.h>
 
 #include "backends/imgui_impl_glfw.h"
