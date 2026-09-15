@@ -1,8 +1,8 @@
-gtu7gps_node:
+gt_u7_gps_node:
   ros__parameters:
     port: "/dev/ttyS0"
     baud_rate: 115200
-    nmea_rate: 5
+    nmea_rates: 5
     frame_id: "gps"
     publish_hz: 5.0
     mode: "GPS_GLO_5HZ"  # "GPS_10HZ" or "GPS_GLO_5HZ"
