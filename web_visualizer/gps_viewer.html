@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPS Data Viewer</title>
+    <script src="roslib.min.js"></script>
+    <style>
+        :root {
+            color-scheme: dark;
+            --background: #07111f;
+            --surface: #0d1b2d;
+            --surface-raised: #12233a;
+            --border: #243750;
+            --text: #f5f7fb;
+            --muted: #9aabc0;
+            --accent: #45d6a8;
+            --accent-soft: rgba(69, 214, 168, 0.14);
+            --warning: #f7b955;
+            --danger: #ff6b78;
+            --shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 32px 20px;
+            background:
+                radial-gradient(circle at 10% 0%, rgba(40, 106, 159, 0.25), transparent 38%),
+                radial-gradient(circle at 95% 95%, rgba(69, 214, 168, 0.12), transparent 35%),
+                var(--background);
+            color: var(--text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .dashboard {
+            width: min(960px, 100%);
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: clamp(1.8rem, 5vw, 2.7rem);
+            letter-spacing: -0.04em;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 auto;
+            min-height: 38px;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: rgba(13, 27, 45, 0.8);
+            color: var(--muted);
+            font-size: 0.875rem;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--warning);
+            box-shadow: 0 0 0 4px rgba(247, 185, 85, 0.12);
+        }
+
+        .connection-status.connected {
+            color: var(--accent);
+            border-color: rgba(69, 214, 168, 0.35);
+        }
+
+        .connection-status.connected .status-dot {
+            background: var(--accent);
+            box-shadow: 0 0 0 4px rgba(69, 214, 168, 0.12);
+        }
+
+        .connection-status.error {
+            color: var(--danger);
+            border-color: rgba(255, 107, 120, 0.35);
+        }
+
+        .connection-status.error .status-dot {
+            background: var(--danger);
+            box-shadow: 0 0 0 4px rgba(255, 107, 120, 0.12);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.45fr) minmax(240px, 0.75fr);
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: rgba(13, 27, 45, 0.88);
+            box-shadow: var(--shadow);
+        }
+
+        .location-card {
+            position: relative;
+            min-height: 255px;
+            padding: 28px;
+            overflow: hidden;
+        }
+
+        .location-card::after {
+            position: absolute;
+            right: -60px;
+            bottom: -82px;
+            width: 230px;
+            height: 230px;
+            border: 1px solid rgba(69, 214, 168, 0.18);
+            border-radius: 50%;
+            box-shadow:
+                0 0 0 28px rgba(69, 214, 168, 0.035),
+                0 0 0 58px rgba(69, 214, 168, 0.025);
+            content: "";
+        }
+
+        .eyebrow {
+            margin: 0 0 18px;
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .coordinates {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 28px;
+        }
+
+        .coordinate-label,
+        .metric-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+
+        .coordinate-value {
+            display: block;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+            font-size: clamp(1.25rem, 4vw, 2rem);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.04em;
+            overflow-wrap: anywhere;
+        }
+
+        .location-actions {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 34px;
+        }
+
+        button,
+        .button-link {
+            min-height: 42px;
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--surface-raised);
+            color: var(--text);
+            font: inherit;
+            font-size: 0.875rem;
+            font-weight: 650;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        button:hover,
+        .button-link:hover {
+            border-color: rgba(69, 214, 168, 0.55);
+        }
+
+        button:focus-visible,
+        .button-link:focus-visible {
+            outline: 3px solid rgba(69, 214, 168, 0.4);
+            outline-offset: 2px;
+        }
+
+        button:disabled,
+        .button-link.disabled {
+            opacity: 0.45;
+            pointer-events: none;
+        }
+
+        .fix-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 255px;
+            padding: 28px;
+        }
+
+        .fix-indicator {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .fix-icon {
+            display: grid;
+            width: 58px;
+            height: 58px;
+            place-items: center;
+            border-radius: 50%;
+            background: rgba(247, 185, 85, 0.12);
+            color: var(--warning);
+            font-size: 1.5rem;
+        }
+
+        .fix-icon.has-fix {
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .fix-title {
+            margin: 0 0 4px;
+            font-size: 1.2rem;
+        }
+
+        .fix-detail {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .update-time {
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .metric {
+            min-height: 132px;
+            padding: 22px;
+        }
+
+        .metric-value {
+            display: block;
+            font-size: clamp(1.35rem, 4vw, 2rem);
+            font-weight: 650;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.03em;
+        }
+
+        .metric-unit {
+            color: var(--muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .footer-line {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px 20px;
+            margin-top: 18px;
+            padding: 0 4px;
+            color: var(--muted);
+            font-size: 0.78rem;
+        }
+
+        .footer-line code {
+            color: #c9d7e7;
+        }
+
+        @media (max-width: 740px) {
+            header {
+                flex-direction: column;
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 440px) {
+            body {
+                padding: 22px 14px;
+            }
+
+            .location-card,
+            .fix-card,
+            .metric {
+                padding: 20px;
+            }
+
+            .coordinates {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="dashboard">
+        <header>
+            <div>
+                <h1>GPS Data</h1>
+                <p class="subtitle">Live position from the vehicle GPS receiver</p>
+            </div>
+            <div id="connectionStatus" class="connection-status" role="status" aria-live="polite">
+                <span class="status-dot" aria-hidden="true"></span>
+                <span id="connectionText">Connecting to ROS Bridge</span>
+            </div>
+        </header>
+
+        <section class="hero" aria-label="GPS position and fix status">
+            <article class="card location-card">
+                <p class="eyebrow">Current position</p>
+                <div class="coordinates">
+                    <div>
+                        <span class="coordinate-label">Latitude</span>
+                        <strong id="latitude" class="coordinate-value">—</strong>
+                    </div>
+                    <div>
+                        <span class="coordinate-label">Longitude</span>
+                        <strong id="longitude" class="coordinate-value">—</strong>
+                    </div>
+                </div>
+                <div class="location-actions">
+                    <button id="copyButton" type="button" disabled>Copy coordinates</button>
+                    <a id="mapsLink" class="button-link disabled" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">Open in maps</a>
+                </div>
+            </article>
+
+            <article class="card fix-card">
+                <div>
+                    <p class="eyebrow">Signal</p>
+                    <div class="fix-indicator">
+                        <div id="fixIcon" class="fix-icon" aria-hidden="true">⌖</div>
+                        <div>
+                            <h2 id="fixTitle" class="fix-title">Waiting for data</h2>
+                            <p id="fixDetail" class="fix-detail">Topic: /fix</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="updateTime" class="update-time">No messages received yet</div>
+            </article>
+        </section>
+
+        <section class="metrics" aria-label="GPS measurements">
+            <article class="card metric">
+                <span class="metric-label">Altitude</span>
+                <strong id="altitude" class="metric-value">—</strong>
+                <span class="metric-unit">meters</span>
+            </article>
+            <article class="card metric">
+                <span class="metric-label">Horizontal accuracy</span>
+                <strong id="horizontalAccuracy" class="metric-value">—</strong>
+                <span class="metric-unit">± meters</span>
+            </article>
+            <article class="card metric">
+                <span class="metric-label">Vertical accuracy</span>
+                <strong id="verticalAccuracy" class="metric-value">—</strong>
+                <span class="metric-unit">± meters</span>
+            </article>
+            <article class="card metric">
+                <span class="metric-label">Messages</span>
+                <strong id="messageCount" class="metric-value">0</strong>
+                <span class="metric-unit">received</span>
+            </article>
+        </section>
+
+        <div class="footer-line">
+            <span>ROS Bridge: <code>ws://localhost:9090</code></span>
+            <span>Source: <code>/fix</code> · <code>sensor_msgs/NavSatFix</code></span>
+        </div>
+    </main>
+
+    <script>
+        (() => {
+            const ROS_BRIDGE_URL = 'ws://localhost:9090';
+            const GPS_TOPIC = '/fix';
+            const GPS_MESSAGE_TYPE = 'sensor_msgs/NavSatFix';
+
+            const elements = {
+                connectionStatus: document.getElementById('connectionStatus'),
+                connectionText: document.getElementById('connectionText'),
+                latitude: document.getElementById('latitude'),
+                longitude: document.getElementById('longitude'),
+                altitude: document.getElementById('altitude'),
+                horizontalAccuracy: document.getElementById('horizontalAccuracy'),
+                verticalAccuracy: document.getElementById('verticalAccuracy'),
+                messageCount: document.getElementById('messageCount'),
+                fixIcon: document.getElementById('fixIcon'),
+                fixTitle: document.getElementById('fixTitle'),
+                fixDetail: document.getElementById('fixDetail'),
+                updateTime: document.getElementById('updateTime'),
+                copyButton: document.getElementById('copyButton'),
+                mapsLink: document.getElementById('mapsLink')
+            };
+
+            let latestCoordinates = null;
+            let messageCount = 0;
+            let reconnectTimer = null;
+            let ros = null;
+            let gpsTopic = null;
+
+            function setConnectionState(state, message) {
+                elements.connectionStatus.className = `connection-status ${state}`.trim();
+                elements.connectionText.textContent = message;
+            }
+
+            function formatNumber(value, digits) {
+                return Number.isFinite(value) ? value.toFixed(digits) : '—';
+            }
+
+            function covarianceAccuracy(covariance, index) {
+                const variance = Number(covariance?.[index]);
+                return Number.isFinite(variance) && variance >= 0 ? Math.sqrt(variance) : NaN;
+            }
+
+            function statusLabel(status) {
+                if (status === 2) return 'GBAS fix';
+                if (status === 1) return 'SBAS fix';
+                if (status === 0) return 'GPS fix';
+                return 'No GPS fix';
+            }
+
+            function messageTimestamp(message) {
+                const stamp = message.header?.stamp;
+                const seconds = Number(stamp?.sec ?? stamp?.secs);
+                const nanoseconds = Number(stamp?.nanosec ?? stamp?.nsecs ?? 0);
+
+                if (Number.isFinite(seconds) && seconds > 0) {
+                    return new Date((seconds * 1000) + (nanoseconds / 1e6));
+                }
+                return new Date();
+            }
+
+            function updateGps(message) {
+                messageCount += 1;
+                elements.messageCount.textContent = messageCount.toLocaleString();
+
+                const latitude = Number(message.latitude);
+                const longitude = Number(message.longitude);
+                const altitude = Number(message.altitude);
+                const status = Number(message.status?.status ?? -1);
+                const hasCoordinates = Number.isFinite(latitude) && Number.isFinite(longitude);
+                const hasFix = status >= 0 && hasCoordinates;
+
+                elements.latitude.textContent = formatNumber(latitude, 7);
+                elements.longitude.textContent = formatNumber(longitude, 7);
+                elements.altitude.textContent = formatNumber(altitude, 2);
+
+                const eastAccuracy = covarianceAccuracy(message.position_covariance, 0);
+                const northAccuracy = covarianceAccuracy(message.position_covariance, 4);
+                const verticalAccuracy = covarianceAccuracy(message.position_covariance, 8);
+                const horizontalAccuracy = Math.max(eastAccuracy, northAccuracy);
+
+                elements.horizontalAccuracy.textContent = formatNumber(horizontalAccuracy, 2);
+                elements.verticalAccuracy.textContent = formatNumber(verticalAccuracy, 2);
+                elements.fixTitle.textContent = statusLabel(status);
+                elements.fixDetail.textContent = message.header?.frame_id
+                    ? `Frame: ${message.header.frame_id}`
+                    : `Topic: ${GPS_TOPIC}`;
+                elements.fixIcon.classList.toggle('has-fix', hasFix);
+
+                const timestamp = messageTimestamp(message);
+                elements.updateTime.textContent = `Last update: ${timestamp.toLocaleTimeString()} · Message #${messageCount}`;
+
+                if (hasCoordinates) {
+                    latestCoordinates = { latitude, longitude };
+                    elements.copyButton.disabled = false;
+                    elements.mapsLink.classList.remove('disabled');
+                    elements.mapsLink.removeAttribute('aria-disabled');
+                    elements.mapsLink.href = `https://www.openstreetmap.org/?mlat=${encodeURIComponent(latitude)}&mlon=${encodeURIComponent(longitude)}#map=18/${encodeURIComponent(latitude)}/${encodeURIComponent(longitude)}`;
+                }
+            }
+
+            function subscribeToGps() {
+                gpsTopic = new ROSLIB.Topic({
+                    ros,
+                    name: GPS_TOPIC,
+                    messageType: GPS_MESSAGE_TYPE
+                });
+                gpsTopic.subscribe(updateGps);
+            }
+
+            function connect() {
+                clearTimeout(reconnectTimer);
+                setConnectionState('', 'Connecting to ROS Bridge');
+                ros = new ROSLIB.Ros({ url: ROS_BRIDGE_URL });
+
+                ros.on('connection', () => {
+                    setConnectionState('connected', 'ROS Bridge connected');
+                    subscribeToGps();
+                });
+
+                ros.on('error', () => {
+                    setConnectionState('error', 'ROS Bridge unavailable');
+                });
+
+                ros.on('close', () => {
+                    if (gpsTopic) {
+                        gpsTopic.unsubscribe();
+                        gpsTopic = null;
+                    }
+                    setConnectionState('error', 'Disconnected · retrying');
+                    reconnectTimer = setTimeout(connect, 3000);
+                });
+            }
+
+            elements.copyButton.addEventListener('click', async () => {
+                if (!latestCoordinates) return;
+                const text = `${latestCoordinates.latitude.toFixed(7)}, ${latestCoordinates.longitude.toFixed(7)}`;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    elements.copyButton.textContent = 'Copied';
+                    setTimeout(() => {
+                        elements.copyButton.textContent = 'Copy coordinates';
+                    }, 1400);
+                } catch {
+                    window.prompt('Copy coordinates:', text);
+                }
+            });
+
+            if (typeof ROSLIB === 'undefined') {
+                setConnectionState('error', 'ROSLIB failed to load');
+            } else {
+                connect();
+            }
+        })();
+    </script>
+</body>
+</html>
