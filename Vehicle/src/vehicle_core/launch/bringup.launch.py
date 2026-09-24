@@ -15,6 +15,7 @@ def generate_launch_description():
     cfg_gps   = path_join(pkg_share, 'cfg', 'gt_u7_gps.yaml')
     cfg_hdc   = path_join(pkg_share, 'cfg', 'heading_calib.yaml')
     cfg_atp   = path_join(pkg_share, 'cfg', 'autopilot.yaml')
+    cfg_odom = path_join(pkg_share,'cfg','ackermann_odometry.yaml')
     cfg_rtsp  = path_join(pkg_share, 'cfg', 'rtsp_raw_stream.yaml')
 
     ekf_params    = PathJoinSubstitution([pkg_share,  'cfg', 'ekf.yaml'])
@@ -87,6 +88,12 @@ def generate_launch_description():
                 plugin="vehicle_core::AutopilotNode",
                 name="autopilot_node",
                 parameters=[{"path_file": path_file}, cfg_atp],
+            ),
+            ComposableNode(
+                package="vehicle_core",
+                plugin="vehicle_core::AckermannOdometryNode",
+                name="ackermann_odometry_node",
+                parameters=[cfg_odom],
             ),
         ],
         emulate_tty=True,
