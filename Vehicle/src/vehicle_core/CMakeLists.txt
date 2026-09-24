@@ -43,6 +43,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(robot_localization REQUIRED)
 
@@ -104,6 +105,7 @@ ament_export_include_directories(include)
 ament_export_dependencies(
   rclcpp rclcpp_components std_msgs std_srvs
   geometry_msgs nav_msgs sensor_msgs tf2
+  tf2_ros
   cv_bridge
 )
 if(OpenCV_FOUND)
@@ -268,6 +270,41 @@ install(TARGETS autopilot_node_component
 )
 target_link_libraries(autopilot_node_component
   Geographic
+)
+
+# --- Ackermann wheel odometry component ---
+add_library(ackermann_odometry_node_component SHARED
+  src/ackermann_odometry_node.cpp
+)
+
+target_include_directories(ackermann_odometry_node_component PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${SHARED_ROOT}
+)
+
+ament_target_dependencies(ackermann_odometry_node_component
+  rclcpp
+  rclcpp_components
+  geometry_msgs
+  nav_msgs
+  tf2_ros
+)
+
+rosidl_target_interfaces(
+  ackermann_odometry_node_component
+  ${PROJECT_NAME}
+  "rosidl_typesupport_cpp"
+)
+
+rclcpp_components_register_nodes(
+  ackermann_odometry_node_component
+  "vehicle_core::AckermannOdometryNode"
+)
+
+install(TARGETS ackermann_odometry_node_component
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 # --- RTSP Streamer component ---
