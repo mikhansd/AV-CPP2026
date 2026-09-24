@@ -1,0 +1,25 @@
+ackermann_odometry_node:
+  ros__parameters:
+    # 32.0 inches, measured rear axle center to front axle center.
+    wheelbase_m: 0.8128
+
+    feedback_topic: /vehicle/drive_feedback
+    odometry_topic: /wheel/odometry
+    odom_frame: odom
+    base_frame: base_link
+
+    # DriveFeedback reports rear-drive-wheel speed and measured steering angle.
+    steering_angle_scale: 1.0
+    steering_angle_offset_rad: 0.0
+    max_abs_steering_angle_rad: 0.5
+    speed_deadband_mps: 0.02
+    maximum_integration_dt_s: 0.25
+
+    # Keep false when robot_localization publishes odom -> base_link.
+    publish_tf: false
+
+    # Initial estimates; tune from recorded straight and constant-radius runs.
+    pose_xy_stddev_m: 0.10
+    pose_yaw_stddev_rad: 0.10
+    speed_stddev_mps: 0.15
+    yaw_rate_stddev_rad_s: 0.15
