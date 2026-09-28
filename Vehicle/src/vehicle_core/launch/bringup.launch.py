@@ -113,7 +113,7 @@ def generate_launch_description():
         ],
     )
 
-    # ekf_localization_node: fuses IMU wz + /vehicle/velocity + /filtered/gps/pose
+    # ekf_localization_node: fuses IMU wz + /vehicle/velocity + /wheel/odometry + /filtered/gps/pose
     ekf = Node(
         package='robot_localization',
         executable='ekf_node',
