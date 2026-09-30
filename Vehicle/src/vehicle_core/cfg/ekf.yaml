@@ -9,7 +9,7 @@ ekf_localization_node:
     map_frame: map
     odom_frame: odom
     base_link_frame: base_link
-    world_frame: map
+    world_frame: odom
 
     # IMU: use only wz (yaw rate)
    # imu0: /vehicle/imu/data
