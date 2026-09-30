@@ -12,9 +12,9 @@ ekf_localization_node:
     world_frame: map
 
     # IMU: use only wz (yaw rate)
-    imu0: /vehicle/imu/data
-    imu0_config: [false,false,false,  false,false,false,  false,false,false,  false,false,true,  false,false,false]
-    imu0_queue_size: 20
+   # imu0: /vehicle/imu/data
+   # imu0_config: [false,false,false,  false,false,false,  false,false,false,  false,false,true,  false,false,false]
+    #imu0_queue_size: 20
 
     # Wheel speed -> body vx
     twist0: /vehicle/velocity
