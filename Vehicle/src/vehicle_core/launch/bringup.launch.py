@@ -44,7 +44,8 @@ def generate_launch_description():
             ComposableNode(
                 package='vehicle_core',
                 plugin='vehicle_core::TcpServerNode',
-                name='tcp_server_node'
+                name='tcp_server_node',
+                parameters=[{'port': 5000}],
             ),
             ComposableNode(
                 package='vehicle_core',
