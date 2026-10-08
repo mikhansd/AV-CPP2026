@@ -1,12 +1,23 @@
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
 from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.descriptions import ComposableNode
+from launch_ros.parameter_descriptions import ParameterValue
 from ament_index_python.packages import get_package_share_directory
 from os.path import join as path_join
-from launch.substitutions import PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
+    lidar_frame = LaunchConfiguration('lidar_frame')
+    lidar_x = LaunchConfiguration('lidar_x')
+    lidar_y = LaunchConfiguration('lidar_y')
+    lidar_z = LaunchConfiguration('lidar_z')
+    lidar_yaw = LaunchConfiguration('lidar_yaw')
+    lidar_pitch = LaunchConfiguration('lidar_pitch')
+    lidar_roll = LaunchConfiguration('lidar_roll')
+    ekf_publish_tf = LaunchConfiguration('ekf_publish_tf')
+
     pkg_share = get_package_share_directory('vehicle_core')
     cfg_sm    = path_join(pkg_share, 'cfg', 'state_manager.yaml')
     cfg_da    = path_join(pkg_share, 'cfg', 'drive_arbiter.yaml')
@@ -114,13 +125,30 @@ def generate_launch_description():
         ],
     )
 
-    # ekf_localization_node: fuses IMU wz + /vehicle/velocity + /wheel/odometry + /filtered/gps/pose
+    # ekf_localization_node: fuses wheel data + GPS when available.
     ekf = Node(
         package='robot_localization',
         executable='ekf_node',
         name='ekf_localization_node',
         output='screen',
-        parameters=[ekf_params],
+        parameters=[
+            ekf_params,
+            {'publish_tf': ParameterValue(ekf_publish_tf, value_type=bool)},
+        ],
+    )
+
+    # The LiDAR is rigidly mounted to the vehicle. Defaults are an identity
+    # transform for bringup/testing; replace them with measured values.
+    lidar_tf = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='base_to_lidar_tf',
+        output='screen',
+        arguments=[
+            lidar_x, lidar_y, lidar_z,
+            lidar_yaw, lidar_pitch, lidar_roll,
+            'base_link', lidar_frame,
+        ],
     )
 
     # wvs_params = {
@@ -139,9 +167,36 @@ def generate_launch_description():
     # )
 
     return LaunchDescription([
+        DeclareLaunchArgument(
+            'lidar_frame', default_value='lidar_link',
+            description='Frame ID used by the LiDAR /scan messages.'),
+        DeclareLaunchArgument(
+            'lidar_x', default_value='0.0',
+            description='LiDAR x offset from base_link in metres.'),
+        DeclareLaunchArgument(
+            'lidar_y', default_value='0.0',
+            description='LiDAR y offset from base_link in metres.'),
+        DeclareLaunchArgument(
+            'lidar_z', default_value='0.0',
+            description='LiDAR z offset from base_link in metres.'),
+        DeclareLaunchArgument(
+            'lidar_yaw', default_value='0.0',
+            description='LiDAR yaw relative to base_link in radians.'),
+        DeclareLaunchArgument(
+            'lidar_pitch', default_value='0.0',
+            description='LiDAR pitch relative to base_link in radians.'),
+        DeclareLaunchArgument(
+            'lidar_roll', default_value='0.0',
+            description='LiDAR roll relative to base_link in radians.'),
+        DeclareLaunchArgument(
+            'ekf_publish_tf', default_value='false',
+            description=(
+                'Whether the GPS EKF may publish its global TF. Set false '
+                'when AMCL or SLAM Toolbox owns map -> odom.')),
         container,
         navsat,
         ekf,
+        lidar_tf,
         # imu_tf,  # uncomment if you need the static transform
         #web_video,
     ])

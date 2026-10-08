@@ -99,6 +99,8 @@ ament_export_dependencies(rosidl_default_runtime)
 # ================================
 install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY data/ DESTINATION share/${PROJECT_NAME}/data)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../../maps/
+  DESTINATION share/${PROJECT_NAME}/maps)
 ament_export_include_directories(include)
 
 # Also export deps for downstream tools/containers

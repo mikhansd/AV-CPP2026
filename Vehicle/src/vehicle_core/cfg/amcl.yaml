@@ -1,0 +1,26 @@
+amcl:
+  ros__parameters:
+    use_sim_time: false
+
+    global_frame_id: map
+    odom_frame_id: odom
+    base_frame_id: base_link
+    tf_broadcast: true
+
+    scan_topic: /scan
+    map_topic: /map
+    transform_tolerance: 1.0
+
+    # The car is planar. AMCL uses odom -> base_link for its motion update
+    # and matches LaserScan data against the occupancy-grid map.
+    robot_model_type: nav2_amcl::DifferentialMotionModel
+    laser_model_type: likelihood_field
+    max_beams: 60
+    min_particles: 500
+    max_particles: 2000
+    resample_interval: 1
+    update_min_d: 0.10
+    update_min_a: 0.10
+    first_map_only: false
+    set_initial_pose: false
+

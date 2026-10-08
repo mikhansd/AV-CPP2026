@@ -1,0 +1,9 @@
+# Synthetic test map for validating map_server, AMCL, and TF wiring.
+# Replace this with the real occupancy-grid map before using AMCL on the car.
+image: av_cpp_test_map.pgm
+mode: trinary
+resolution: 0.10
+origin: [-0.50, -0.50, 0.0]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
