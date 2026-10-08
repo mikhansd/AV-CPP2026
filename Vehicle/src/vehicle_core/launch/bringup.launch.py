@@ -168,7 +168,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         DeclareLaunchArgument(
-            'lidar_frame', default_value='lidar_link',
+            'lidar_frame', default_value='laser_frame',
             description='Frame ID used by the LiDAR /scan messages.'),
         DeclareLaunchArgument(
             'lidar_x', default_value='0.0',
