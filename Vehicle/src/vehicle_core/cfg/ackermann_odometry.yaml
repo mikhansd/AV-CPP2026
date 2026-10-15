@@ -9,7 +9,7 @@ ackermann_odometry_node:
     base_frame: base_link
 
     # DriveFeedback reports rear-drive-wheel speed and measured steering angle.
-    steering_angle_scale: 0.8
+    steering_angle_scale: 0.6
     steering_angle_offset_rad: 0.0
     max_abs_steering_angle_rad: 0.5
     speed_deadband_mps: 0.02
