@@ -9,15 +9,19 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
-    lidar_frame = LaunchConfiguration('lidar_frame')
-    lidar_x = LaunchConfiguration('lidar_x')
-    lidar_y = LaunchConfiguration('lidar_y')
-    lidar_z = LaunchConfiguration('lidar_z')
-    lidar_yaw = LaunchConfiguration('lidar_yaw')
-    lidar_pitch = LaunchConfiguration('lidar_pitch')
-    lidar_roll = LaunchConfiguration('lidar_roll')
+    #lidar_frame = LaunchConfiguration('lidar_frame')
+    #lidar_x = LaunchConfiguration('lidar_x')
+    #lidar_y = LaunchConfiguration('lidar_y')
+    #lidar_z = LaunchConfiguration('lidar_z')
+    #lidar_yaw = LaunchConfiguration('lidar_yaw')
+    #lidar_pitch = LaunchConfiguration('lidar_pitch')
+    #lidar_roll = LaunchConfiguration('lidar_roll')
     ekf_publish_tf = LaunchConfiguration('ekf_publish_tf')
 
+    path_file = PathJoinSubstitution([pkg_share,'data','Vehicle_Path.kml'])
+    urdf_file = PathJoinSubstitution([FindPackageShare('vehicle_core'),'urdf','cart.urdf.xacro',])
+    robot_description = Command(['xacro ',urdf_file,])
+    
     pkg_share = get_package_share_directory('vehicle_core')
     cfg_sm    = path_join(pkg_share, 'cfg', 'state_manager.yaml')
     cfg_da    = path_join(pkg_share, 'cfg', 'drive_arbiter.yaml')
@@ -139,18 +143,31 @@ def generate_launch_description():
 
     # The LiDAR is rigidly mounted to the vehicle. Defaults are an identity
     # transform for bringup/testing; replace them with measured values.
-    lidar_tf = Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        name='base_to_lidar_tf',
-        output='screen',
-        arguments=[
-            lidar_x, lidar_y, lidar_z,
-            lidar_yaw, lidar_pitch, lidar_roll,
-            'base_link', lidar_frame,
-        ],
-    )
+   # lidar_tf = Node(
+        #package='tf2_ros',
+       # executable='static_transform_publisher',
+        #name='base_to_lidar_tf',
+       # output='screen',
+       # arguments=[
+        #    lidar_x, lidar_y, lidar_z,
+        #    lidar_yaw, lidar_pitch, lidar_roll,
+         #   'base_link', lidar_frame,
+        #],
+    #)
 
+    robot_state_publisher = Node(
+    package='robot_state_publisher',
+    executable='robot_state_publisher',
+    name='robot_state_publisher',
+    output='screen',
+    parameters=[{
+        'robot_description': ParameterValue(
+            robot_description,
+            value_type=str,
+        ),
+    }],
+)
+    
     # wvs_params = {
     #     "address": "0.0.0.0",
     #     "port": 8080,
@@ -167,36 +184,38 @@ def generate_launch_description():
     # )
 
     return LaunchDescription([
-        DeclareLaunchArgument(
-            'lidar_frame', default_value='laser_frame',
-            description='Frame ID used by the LiDAR /scan messages.'),
-        DeclareLaunchArgument(
-            'lidar_x', default_value='0.0',
-            description='LiDAR x offset from base_link in metres.'),
-        DeclareLaunchArgument(
-            'lidar_y', default_value='0.0',
-            description='LiDAR y offset from base_link in metres.'),
-        DeclareLaunchArgument(
-            'lidar_z', default_value='0.0',
-            description='LiDAR z offset from base_link in metres.'),
-        DeclareLaunchArgument(
-            'lidar_yaw', default_value='0.0',
-            description='LiDAR yaw relative to base_link in radians.'),
-        DeclareLaunchArgument(
-            'lidar_pitch', default_value='0.0',
-            description='LiDAR pitch relative to base_link in radians.'),
-        DeclareLaunchArgument(
-            'lidar_roll', default_value='0.0',
-            description='LiDAR roll relative to base_link in radians.'),
+        #DeclareLaunchArgument(
+         #   'lidar_frame', default_value='laser_frame',
+          #  description='Frame ID used by the LiDAR /scan messages.'),
+        #DeclareLaunchArgument(
+         #   'lidar_x', default_value='0.0',
+          #  description='LiDAR x offset from base_link in metres.'),
+        #DeclareLaunchArgument(
+         #   'lidar_y', default_value='0.0',
+          #  description='LiDAR y offset from base_link in metres.'),
+        #DeclareLaunchArgument(
+         #   'lidar_z', default_value='0.0',
+          #  description='LiDAR z offset from base_link in metres.'),
+        #DeclareLaunchArgument(
+         #   'lidar_yaw', default_value='0.0',
+          #  description='LiDAR yaw relative to base_link in radians.'),
+        #DeclareLaunchArgument(
+         #   'lidar_pitch', default_value='0.0',
+          #  description='LiDAR pitch relative to base_link in radians.'),
+        #DeclareLaunchArgument(
+         #   'lidar_roll', default_value='0.0',
+          #  description='LiDAR roll relative to base_link in radians.'),
         DeclareLaunchArgument(
             'ekf_publish_tf', default_value='false',
             description=(
                 'Whether the GPS EKF may publish its global TF. Set false '
                 'when AMCL or SLAM Toolbox owns map -> odom.')),
+        
         container,
         navsat,
         ekf,
-        lidar_tf,
+        robot_state_publisher,
+        #lidar_tf,
         # imu_tf,  # uncomment if you need the static transform
         #web_video,
     ])
