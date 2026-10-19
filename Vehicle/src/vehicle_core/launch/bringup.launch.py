@@ -206,7 +206,7 @@ def generate_launch_description():
          #   'lidar_roll', default_value='0.0',
           #  description='LiDAR roll relative to base_link in radians.'),
         DeclareLaunchArgument(
-            'ekf_publish_tf', default_value='false',
+            'ekf_publish_tf', default_value='true',
             description=(
                 'Whether the GPS EKF may publish its global TF. Set false '
                 'when AMCL or SLAM Toolbox owns map -> odom.')),
