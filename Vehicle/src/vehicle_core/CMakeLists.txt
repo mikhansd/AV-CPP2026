@@ -373,9 +373,9 @@ if(BUILD_VEHICLE_CORE_CONTAINER)
 endif()
 
 # ================================
-#   Install resources (cfg/launch)
+#   Install resources (cfg/launch/urdf)
 # ================================
-install(DIRECTORY cfg launch
+install(DIRECTORY cfg launch urdf
   DESTINATION share/${PROJECT_NAME}
 )
 
