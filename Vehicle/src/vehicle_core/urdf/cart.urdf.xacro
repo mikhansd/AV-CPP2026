@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ugv_cart">
+
+  <!--
+    base_link origin:
+    Center of rear axle.
+    X points forward, Y points left, Z points upward.
+  -->
+  <link name="base_link"/>
+
+  <!-- LiDAR coordinate frame -->
+  <link name="lidar_link"/>
+
+  <!-- Fixed LiDAR mount relative to the rear-axle midpoint -->
+  <joint name="base_to_lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+
+    <!-- Replace these values with actual measurements.
+         xyz uses meters and rpy uses radians. -->
+    <origin xyz="0.50 0.00 0.70" rpy="0.00 0.00 0.00"/>
+  </joint>
+
+</robot>
