@@ -49,3 +49,10 @@ build/
 
 # IP address and listening port
 Shared/Keys.h
+
+Vehicle/build/
+Vehicle/install/
+Vehicle/log/
+
+**/__pycache__
+
