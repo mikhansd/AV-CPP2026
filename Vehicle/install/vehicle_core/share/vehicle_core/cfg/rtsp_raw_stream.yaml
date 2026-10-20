@@ -1,9 +1,0 @@
-rtsp_raw:
-  ros__parameters:
-    width: 2112
-    height: 1568
-    fps: 15
-
-    image_topic: "/camera/image_raw"
-    service: 8554
-    mount_point: "/raw"

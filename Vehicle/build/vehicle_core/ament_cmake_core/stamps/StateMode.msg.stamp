@@ -1,2 +1,0 @@
-uint8 mode
-# 0=INIT, 1=MANUAL, 2=ARMING, 3=AUTO, 4=FAULT, 5=E_STOP

@@ -1,1 +1,0 @@
-rclcpp;rclcpp_components;std_msgs;std_srvs;builtin_interfaces;sensor_msgs;nav_msgs;geometry_msgs;tf2;pluginlib;cv_bridge;robot_localization;rosidl_default_runtime;launch;launch_ros;libgstreamer1.0-0;libgstreamer-plugins-base1.0-0;libgstrtspserver-1.0-0;ament_lint_auto;ament_lint_common

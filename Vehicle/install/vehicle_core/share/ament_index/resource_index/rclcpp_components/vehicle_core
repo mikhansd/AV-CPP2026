@@ -1,9 +1,0 @@
-vehicle_core::StateManagerNode;lib/libstate_manager_node_component.so
-vehicle_core::HeadingCalibratorNode;lib/libheading_calibrator_node_component.so
-vehicle_core::DriveArbiterNode;lib/libdrive_arbiter_node_component.so
-vehicle_core::GtU7GpsNode;lib/libgt_u7_gps_node_component.so
-vehicle_core::TcpServerNode;lib/libtcp_server_node_component.so
-vehicle_core::I2cBridgeNode;lib/libi2c_bridge_node.so
-vehicle_core::AutopilotNode;lib/libautopilot_node_component.so
-vehicle_core::RtspStreamerNode;lib/librtsp_streamer_node.so
-vehicle_core::GstCameraNode;lib/libgst_camera_component.so

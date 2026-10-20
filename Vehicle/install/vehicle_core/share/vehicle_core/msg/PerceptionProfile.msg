@@ -1,1 +1,0 @@
-uint8 profile   # 0=OFF, 1=LIDAR_ONLY, 2=CAMERA_ONLY, 3=FULL

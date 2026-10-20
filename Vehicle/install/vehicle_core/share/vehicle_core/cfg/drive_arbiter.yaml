@@ -1,6 +1,0 @@
-drive_arbiter_node:
-  ros__parameters:
-    vehicle.top_speed_mps: 2.0    
-    steer.max_rad: 0.5
-    override.deadband_percent: 2 
-    publish_when_inactive: false 
