@@ -5,7 +5,7 @@ from launch_ros.descriptions import ComposableNode
 from launch_ros.parameter_descriptions import ParameterValue
 from ament_index_python.packages import get_package_share_directory
 from os.path import join as path_join
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
@@ -18,7 +18,6 @@ def generate_launch_description():
     #lidar_roll = LaunchConfiguration('lidar_roll')
     ekf_publish_tf = LaunchConfiguration('ekf_publish_tf')
 
-    path_file = PathJoinSubstitution([pkg_share,'data','Vehicle_Path.kml'])
     urdf_file = PathJoinSubstitution([FindPackageShare('vehicle_core'),'urdf','cart.urdf.xacro',])
     robot_description = Command(['xacro ',urdf_file,])
     
