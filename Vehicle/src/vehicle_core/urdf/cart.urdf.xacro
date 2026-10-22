@@ -19,7 +19,7 @@
 
     <!-- Replace these values with actual measurements.
          xyz uses meters and rpy uses radians. -->
-    <origin xyz="0.50 0.00 0.70" rpy="0.00 0.00 0.00"/>
+    <origin xyz="0.0635 0.00 0.50165" rpy="0.00 0.00 0.00"/>
   </joint>
 
 </robot>
