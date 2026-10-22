@@ -14,7 +14,7 @@ class BNO055 : public I2CDevice {
 public:
   using I2CDevice::I2CDevice;
 
-  BNO055(std::shared_ptr<I2CBus> bus, uint8_t addr = 0x28);
+  BNO055(std::shared_ptr<I2CBus> bus, uint8_t addr = 0x29);
 
   // ---- Init sequence
   bool init_ndof(bool ext_xtal = true);

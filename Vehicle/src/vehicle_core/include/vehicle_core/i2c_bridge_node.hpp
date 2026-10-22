@@ -39,7 +39,7 @@ public:
 private:
   // Params
   std::string i2c_path_;
-  uint8_t addr_lighting_{0x15}, addr_drive_{0x20}, addr_imu_{0x28};
+  uint8_t addr_lighting_{0x15}, addr_drive_{0x20}, addr_imu_{0x29};
   int drive_cmd_hz_{50};
   int drive_status_hz_{50};
   int imu_data_hz_{50};

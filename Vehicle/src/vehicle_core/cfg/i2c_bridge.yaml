@@ -4,7 +4,7 @@ i2c_bridge_node:
       path: "/dev/i2c-1"
       addr_lighting: 0x15
       addr_drive: 0x20
-      addr_imu: 0x28
+      addr_imu: 0x29
     rates:
       drive_cmd_hz: 20
       drive_status_hz: 20

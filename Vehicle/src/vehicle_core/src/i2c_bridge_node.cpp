@@ -30,7 +30,7 @@ I2cBridgeNode::I2cBridgeNode(const rclcpp::NodeOptions& opts)
   i2c_path_              = this->declare_parameter<std::string>("i2c.path", "/dev/i2c-1");
   addr_lighting_         = static_cast<uint8_t>(this->declare_parameter<int>("i2c.addr_lighting", 0x15));
   addr_drive_            = static_cast<uint8_t>(this->declare_parameter<int>("i2c.addr_drive",    0x20));
-  addr_imu_              = static_cast<uint8_t>(this->declare_parameter<int>("i2c.addr_imu",      0x28));
+  addr_imu_              = static_cast<uint8_t>(this->declare_parameter<int>("i2c.addr_imu",      0x29));
   drive_cmd_hz_          = this->declare_parameter<int>("rates.drive_cmd_hz", 20);
   drive_status_hz_       = this->declare_parameter<int>("rates.drive_status_hz", 20);
   imu_data_hz_           = this->declare_parameter<int>("rates.imu_data_hz", 50);
