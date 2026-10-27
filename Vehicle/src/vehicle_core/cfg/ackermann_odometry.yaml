@@ -17,7 +17,7 @@ ackermann_odometry_node:
 
     # Publish the local odom -> base_link transform. The GPS-enabled EKF
     # uses world_frame: map and publishes the complementary map -> odom.
-    publish_tf: true
+    publish_tf: false
 
     # Initial estimates; tune from recorded straight and constant-radius runs.
     pose_xy_stddev_m: 0.10
