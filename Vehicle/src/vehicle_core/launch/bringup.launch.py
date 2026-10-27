@@ -21,20 +21,23 @@ def generate_launch_description():
     urdf_file = PathJoinSubstitution([FindPackageShare('vehicle_core'),'urdf','cart.urdf.xacro',])
     robot_description = Command(['xacro ',urdf_file,])
     
-    pkg_share = get_package_share_directory('vehicle_core')
-    cfg_sm    = path_join(pkg_share, 'cfg', 'state_manager.yaml')
-    cfg_da    = path_join(pkg_share, 'cfg', 'drive_arbiter.yaml')
-    cfg_i2c   = path_join(pkg_share, 'cfg', 'i2c_bridge.yaml')
-    cfg_cam   = path_join(pkg_share, 'cfg', 'camera_gscam.yaml')
-    cfg_gps   = path_join(pkg_share, 'cfg', 'gt_u7_gps.yaml')
-    cfg_hdc   = path_join(pkg_share, 'cfg', 'heading_calib.yaml')
-    cfg_atp   = path_join(pkg_share, 'cfg', 'autopilot.yaml')
-    cfg_odom = path_join(pkg_share,'cfg','ackermann_odometry.yaml')
-    cfg_rtsp  = path_join(pkg_share, 'cfg', 'rtsp_raw_stream.yaml')
+    pkg_share   = get_package_share_directory('vehicle_core')
+    cfg_sm      = path_join(pkg_share, 'cfg', 'state_manager.yaml')
+    cfg_da      = path_join(pkg_share, 'cfg', 'drive_arbiter.yaml')
+    cfg_i2c     = path_join(pkg_share, 'cfg', 'i2c_bridge.yaml')
+    cfg_cam     = path_join(pkg_share, 'cfg', 'camera_gscam.yaml')
+    cfg_gps     = path_join(pkg_share, 'cfg', 'gt_u7_gps.yaml')
+    cfg_hdc     = path_join(pkg_share, 'cfg', 'heading_calib.yaml')
+    cfg_atp     = path_join(pkg_share, 'cfg', 'autopilot.yaml')
+    cfg_odom    = path_join(pkg_share,'cfg','ackermann_odometry.yaml')
+    cfg_rtsp    = path_join(pkg_share, 'cfg', 'rtsp_raw_stream.yaml')
 
-    ekf_params    = PathJoinSubstitution([pkg_share,  'cfg', 'ekf.yaml'])
-    navsat_params = PathJoinSubstitution([pkg_share,  'cfg', 'navsat.yaml'])
-    path_file     = PathJoinSubstitution([pkg_share, 'data', 'Vehicle_Path.kml'])
+    ekf_params      = PathJoinSubstitution([pkg_share,  'cfg', 'ekf.yaml'])
+    navsat_params   = PathJoinSubstitution([pkg_share,  'cfg', 'navsat.yaml'])
+    path_file       = PathJoinSubstitution([pkg_share, 'data', 'Vehicle_Path.kml'])
+    
+    core_params     = path_join(pkg_share, 'cfg', 'core_launch.yaml')
+
 
     container = ComposableNodeContainer(
         name='vehicle_core_container',
@@ -154,6 +157,14 @@ def generate_launch_description():
         #],
     #)
 
+    # NOTE: The mode of the device `/dev/ttyUSB0` may need to be set to rw for all users.
+    lidar_driver = Node(
+        package='ldlidar_stl_ros2',
+        executable='ldlidar_stl_ros2_node',
+        name='lidar_driver',
+        parameters=[core_params]
+    )
+
     robot_state_publisher = Node(
     package='robot_state_publisher',
     executable='robot_state_publisher',
@@ -214,6 +225,7 @@ def generate_launch_description():
         navsat,
         ekf,
         robot_state_publisher,
+        lidar_driver,
         #lidar_tf,
         # imu_tf,  # uncomment if you need the static transform
         #web_video,
