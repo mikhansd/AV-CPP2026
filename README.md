@@ -77,6 +77,16 @@ Arduino boards handle deterministic, low-level hardware operations:
 - Lighting control
 Telemetry reporting (IMU, battery, speed)
 
+## Setup ##
+
+This repository depends on the existence of other repositories (as packages in ROS) within the ROS workspace in the directory `Vehicle/`.
+To automatically load these repositories, set the working directory to `Vehicle/` and use `vcs` to import them like so:
+
+```bash
+cd Vehicle/
+vcs import < av_cpp2026.repos
+```
+
 ## Documentation
 
 Detailed instructions for setup, development workflow, and runtime operation are located in:
