@@ -15,8 +15,8 @@ ackermann_odometry_node:
     speed_deadband_mps: 0.02
     maximum_integration_dt_s: 0.25
 
-    # Publish the local odom -> base_link transform. The GPS-enabled EKF
-    # uses world_frame: map and publishes the complementary map -> odom.
+    # The local EKF (world_frame: odom) publishes odom -> base_link.
+    # Keep wheel-odometry TF off to avoid duplicate transform publishers.
     publish_tf: false
 
     # Initial estimates; tune from recorded straight and constant-radius runs.

@@ -218,8 +218,8 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'ekf_publish_tf', default_value='true',
             description=(
-                'Whether the GPS EKF may publish its global TF. Set false '
-                'when AMCL or SLAM Toolbox owns map -> odom.')),
+                'Whether the local EKF publishes odom -> base_link. Keep true '
+                'for SLAM/AMCL with the current world_frame: odom configuration.')),
         
         container,
         navsat,

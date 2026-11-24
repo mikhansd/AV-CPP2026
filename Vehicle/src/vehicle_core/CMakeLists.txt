@@ -373,10 +373,16 @@ if(BUILD_VEHICLE_CORE_CONTAINER)
 endif()
 
 # ================================
-#   Install resources (cfg/launch/urdf)
+#   Install resources and the Nav2 drive bridge
 # ================================
-install(DIRECTORY cfg launch urdf
+install(DIRECTORY cfg launch urdf behavior_trees
   DESTINATION share/${PROJECT_NAME}
+)
+
+install(PROGRAMS
+  ${CMAKE_CURRENT_SOURCE_DIR}/../twist_to_internal_drive.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME twist_to_internal_drive
 )
 
 # ================================
