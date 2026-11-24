@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-SLAM_PARAMS="${1:-$HOME/AV-CPP2026/maps/slam_toolbox.yaml}"
+SLAM_PARAMS="${1:-$HOME/AV-CPP2026/Vehicle/src/vehicle_core/cfg/slam_toolbox.yaml}"
 USE_SIM_TIME="${USE_SIM_TIME:-false}"
 
 BASE_FRAME="${BASE_FRAME:-base_link}"

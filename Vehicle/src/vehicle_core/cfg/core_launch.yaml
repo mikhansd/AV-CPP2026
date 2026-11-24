@@ -1,0 +1,9 @@
+lidar_driver: # Must match the name of the node when running; this is currently specified in `bringup.launch.py`.
+  ros__parameters:
+    product_name: LDLiDAR_LD19
+    port_name: /dev/ttyUSB0
+    port_baudrate: 230400
+    topic_name: scan
+    frame_id: lidar_link
+    laser_scan_dir: true
+    enable_angle_crop_func: false
