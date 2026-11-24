@@ -5,7 +5,7 @@ amcl:
     global_frame_id: map
     odom_frame_id: odom
     base_frame_id: base_link
-    tf_broadcast: false
+    tf_broadcast: true
 
     scan_topic: /scan
     map_topic: /map
@@ -22,5 +22,5 @@ amcl:
     update_min_d: 0.10
     update_min_a: 0.10
     first_map_only: false
-    set_initial_pose: false
+    set_initial_pose: true
 
